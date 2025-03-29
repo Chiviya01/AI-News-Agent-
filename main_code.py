@@ -7,6 +7,7 @@ from langchain_core.tools import tool
 from langchain.chat_models import init_chat_model
 from langchain.agents import initialize_agent, Tool, AgentType
 from langchain.agents import AgentExecutor
+from langchain_groq import ChatGroq
 
 # Initialize OpenAI (or Groq) API Key
 if not os.environ.get("GROQ_API_KEY"):
@@ -57,6 +58,31 @@ def ddg_search(input_text: str):
     result = ddg.run({"query": input_text, "num_results": 5})
     return result
 
+# Define the summarize tool that uses ChatGroq to summarize text
+@tool
+def summarize(text: str) -> str:
+    """Summarize the given text using Groq-powered LLM."""
+    if "GROQ_API_KEY" not in os.environ:
+        os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+    llm = ChatGroq(
+        model="llama-3.1-8b-instant",
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2,
+    )
+
+    # Example long text to summarize
+    messages = [
+        ("system", "You are a helpful news summariser. Summarize the user text in a concise manner."),
+        ("human", text),
+    ]
+    ai_msg = llm.invoke(messages)
+    return ai_msg.content
+
 # Define the tools that the agent can use
 tools = [
     Tool(
@@ -68,6 +94,11 @@ tools = [
         name="DuckDuckGo Search",
         func=ddg_search,
         description="Perform a search using DuckDuckGo when necessary."
+    ),
+    Tool(
+        name="Summarize",
+        func=summarize,
+        description="Summarize the final result using Groq-powered LLM."
     )
 ]
 
