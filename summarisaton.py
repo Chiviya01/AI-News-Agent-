@@ -7,7 +7,7 @@ import getpass
 def summarize(text: str) -> str:
    """Summarise the given text."""
    if "GROQ_API_KEY" not in os.environ:
-      os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
+      os.environ["GROQ_API_KEY"] = getpass.getpass("Key not found in environment variables, please enter your Groq API key: ")
 
    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
