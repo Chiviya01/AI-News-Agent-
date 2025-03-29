@@ -8,10 +8,9 @@ from langchain.chat_models import init_chat_model
 from langchain.agents import initialize_agent, Tool, AgentType
 from langchain.agents import AgentExecutor
 from langchain_groq import ChatGroq
+from dotenv import load_dotenv
 
-# Initialize OpenAI (or Groq) API Key
-if not os.environ.get("GROQ_API_KEY"):
-    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter API key for Groq:")
+load_dotenv()
 
 # Initialize LangChain LLM model
 llm = init_chat_model("llama3-8b-8192", model_provider="groq")
