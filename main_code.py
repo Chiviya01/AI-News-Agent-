@@ -9,6 +9,7 @@ from langchain.agents import initialize_agent, Tool, AgentType
 from langchain.agents import AgentExecutor
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
+from langchain_core.runnables import RunnableSequence
 
 load_dotenv()
 
@@ -21,6 +22,7 @@ ddg = DuckDuckGoSearchRun()
 # Define the is_searchable function within LangChain structure
 def is_searchable(input_text: str) -> bool:
     """Determine whether the input requires a search engine."""
+    print("Checking if the input requires a search engine...")
     prompt = PromptTemplate(
         input_variables=["text"],
         template="""
@@ -37,9 +39,11 @@ def is_searchable(input_text: str) -> bool:
         Given the input: "{text}", reply with 'yes' if it requires a search engine or 'no' if it does not.
         """
     )  
-    chain = LLMChain(llm=llm, prompt=prompt)
-    response = chain.run(text=input_text).strip().lower()
-    return response == "yes"
+    chain = prompt | llm
+    response = chain.invoke({"text": input_text})
+    result = response.content.strip().lower()    
+    print(f"Searchable result: {result}")
+    return result == "yes"
 
 # Define a LangChain tool for processing the query
 @tool
